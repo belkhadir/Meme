@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate , UITextFieldDelegate {
+class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate , UITextFieldDelegate {
 
     @IBOutlet weak var topToolBar: UINavigationBar!
     @IBOutlet weak var bottomToolBar: UIToolbar!
@@ -19,6 +19,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         NSStrokeWidthAttributeName : 5.0
     ]
 
+    var memes: [Meme] {
+        return (UIApplication.sharedApplication().delegate as! AppDelegate).memes
+    }
     
     @IBOutlet weak var bottomTextField: UITextField!
     @IBOutlet weak var topTextField: UITextField!
@@ -35,6 +38,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         bottomTextField.defaultTextAttributes = memeTextAttributes
         bottomTextField.delegate = commentTextField
+        
         topTextField.text = "TOP"
         bottomTextField.text = "BOTTOM"
         
@@ -42,12 +46,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.subscribeToKeyboardNotification()
+        subscribeToKeyboardNotification()
     }
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
-        self.unsubscribeToKeyboardNotification()
+        unsubscribeToKeyboardNotification()
  
     }
 
@@ -62,8 +66,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             presentViewController(message, animated: true, completion: nil)
         }
         else{
-            let sharedVC = UIActivityViewController(activityItems: [topTextField.text!], applicationActivities: nil)
-            self.presentViewController(sharedVC, animated: true, completion: nil)
+            
+            let saveImage = generateMemedImage()
+            let sharedVC = UIActivityViewController(activityItems: [saveImage], applicationActivities: nil)
+            sharedVC.completionWithItemsHandler = {
+                (s: String?, ok: Bool, items: [AnyObject]?, err:NSError?) -> Void in self.save()
+                self.dismissViewControllerAnimated(true, completion: nil)
+            }
+            presentViewController(sharedVC, animated: true, completion: nil)
+            
             
         }
     }
@@ -74,18 +85,18 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
-        self.presentViewController(imagePicker, animated: true, completion: nil)
+        presentViewController(imagePicker, animated: true, completion: nil)
     
     }
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imageViewPicker.image = image
-            self.dismissViewControllerAnimated(true, completion: nil)
+            dismissViewControllerAnimated(true, completion: nil)
         }
     }
     
     func keyboardWillShow(notification: NSNotification) {
-        self.view.frame.origin.y -= getKeyboardHeight(notification)
+        view.frame.origin.y -= getKeyboardHeight(notification)
     }
     
     func subscribeToKeyboardNotification(){
@@ -106,7 +117,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
 
     func keyboardWillHide(notification: NSNotification){
-        self.view.frame.origin.y = 0 
+        view.frame.origin.y = 0 
     }
 
     
@@ -115,11 +126,14 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.sourceType = UIImagePickerControllerSourceType.Camera
-        self.presentViewController(imagePicker, animated: true, completion: nil)
+        presentViewController(imagePicker, animated: true, completion: nil)
     }
 
-    func save(){
+    func save() {
         let meme = Meme(topText: topTextField.text!  , bottomText: bottomTextField.text! , image: imageViewPicker.image!, memedImage: generateMemedImage())
+        let object = UIApplication.sharedApplication().delegate
+        let appDelegate = object as! AppDelegate
+        appDelegate.memes.append(meme)
     }
     
     func generateMemedImage() -> UIImage {
@@ -129,8 +143,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         bottomToolBar.hidden = true
         
         // Render view to an image
-        UIGraphicsBeginImageContext(self.view.frame.size)
-        self.view.drawViewHierarchyInRect(self.view.frame,
+        UIGraphicsBeginImageContext(view.frame.size)
+        view.drawViewHierarchyInRect(view.frame,
             afterScreenUpdates: true)
         let memedImage : UIImage =
         UIGraphicsGetImageFromCurrentImageContext()

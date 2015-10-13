@@ -18,8 +18,4 @@ class ComentTextFieldDelegate: NSObject, UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
-    func textFieldShouldEndEditing(textField: UITextField) -> Bool {
-        let newText = textField.text! as NSString
-        return newText.length <= 5
-    }
 }
