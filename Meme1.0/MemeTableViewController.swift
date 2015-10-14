@@ -11,30 +11,29 @@ import UIKit
 
 class MemeTableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
+    var memes: [Meme]!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let applicationDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        memes = applicationDelegate.memes
+        
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem (
-            title: "plus",
-            style: UIBarButtonItemStyle.Plain,
+            barButtonSystemItem: .Add,
             target: self,
-            action: "GOTO")
+            action: "Edit")
     }
     
-    func GOTO(){
-//        let MemeVC = MemeViewController()
-//        presentViewController(MemeVC, animated: true, completion: nil)
+    func Edit(){
+        let edit = self.storyboard!.instantiateViewControllerWithIdentifier("MemeViewController") as! MemeViewController
+        presentViewController(edit, animated: true, completion: nil)
+    
     }
     
-    var memes: [Meme]! {
-        let object = UIApplication.sharedApplication().delegate
-        let appDelegate = object as! AppDelegate
-        return appDelegate.memes
-    }
     
  
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

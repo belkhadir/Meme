@@ -11,19 +11,21 @@ import UIKit
 
 class MemeCollectionViewController:UICollectionViewController {
    
+    var memes: [Meme]!
     override func viewDidLoad() {
         super.viewDidLoad()
+        let applicationDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        memes = applicationDelegate.memes
+        self.collectionView?.reloadData()
     }
     
-    var memes: [Meme] {
-        return (UIApplication.sharedApplication().delegate as! AppDelegate).memes
-    }
+
     
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return memes.count
     }
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cellIdentifier = "MemeImage"
+        let cellIdentifier = "MemeCollectionViewCell"
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(cellIdentifier, forIndexPath: indexPath) as! MemeCollectionViewCell
         cell.image?.image = memes[indexPath.row].memedImage
         return cell

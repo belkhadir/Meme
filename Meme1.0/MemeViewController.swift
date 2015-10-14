@@ -30,6 +30,8 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     @IBOutlet weak var imageViewPicker: UIImageView!
     @IBOutlet weak var camreBar: UIBarButtonItem!
     
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
        camreBar.enabled = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera)
@@ -57,7 +59,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
 
     
     @IBAction func shareButtonTapped(sender: UIBarButtonItem) {
-        if topTextField.text == "TOP" || bottomTextField.text == "BOTTOM" {
+        if topTextField.text == "TOP" || bottomTextField.text == "BOTTOM" || imageViewPicker.image == nil {
             let message = UIAlertController()
             message.title = "error occur"
             message.message = "Please edit the image"
@@ -73,6 +75,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
                 (s: String?, ok: Bool, items: [AnyObject]?, err:NSError?) -> Void in self.save()
                 self.dismissViewControllerAnimated(true, completion: nil)
             }
+            
             presentViewController(sharedVC, animated: true, completion: nil)
             
             
@@ -130,10 +133,8 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
 
     func save() {
-        let meme = Meme(topText: topTextField.text!  , bottomText: bottomTextField.text! , image: imageViewPicker.image!, memedImage: generateMemedImage())
-        let object = UIApplication.sharedApplication().delegate
-        let appDelegate = object as! AppDelegate
-        appDelegate.memes.append(meme)
+        let meme = Meme(topText: topTextField!.text!  , bottomText: bottomTextField!.text! , image: imageViewPicker!.image!, memedImage: generateMemedImage())
+        (UIApplication.sharedApplication().delegate as! AppDelegate).memes.append(meme)
     }
     
     func generateMemedImage() -> UIImage {
